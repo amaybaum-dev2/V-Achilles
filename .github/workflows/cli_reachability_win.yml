@@ -33,7 +33,7 @@ jobs:
         run: yarn install --only=prod
         
       - name: Mend CLI Scan (ubuntu-latest)
-        if: runner.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         env:
           MEND_EMAIL: ${{secrets.MEND_EMAIL}}
           MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
@@ -45,7 +45,7 @@ jobs:
           mend dep -r -u
           
       - name: Mend CLI Scan (windows-latest)
-        if: runner.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         env:
           MEND_EMAIL: ${{secrets.MEND_EMAIL}}
           MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
