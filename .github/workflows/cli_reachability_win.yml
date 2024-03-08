@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: ["12.x"]
 
     steps:
@@ -31,24 +31,39 @@ jobs:
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: yarn install --only=prod
-
-      - name: Mend CLI Scan
+        
+      - name: Mend CLI Scan (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         env:
           MEND_EMAIL: ${{secrets.MEND_EMAIL}}
           MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
           MEND_URL: https://saas.mend.io
         run: |
           echo Downloading Mend CLI
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
-              echo "run Mend reachability scan - Linux"
-              mend dep -r -u
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-              curl https://downloads.mend.io/cli/windows_amd64/mend.exe -o mend.exe
-              echo "run Mend reachability scan - Windows"
-              .\mend.exe dep -r -u
-          else
-              echo "$RUNNER_OS not supported"
-              exit 1
-          fi
-        shell: bash
+          curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+          echo run Mend reachability scan
+          mend dep -r -u
+          
+      - name: Mend CLI Scan (Windows)
+        if: matrix.os == 'windows-latest'
+        env:
+          MEND_EMAIL: ${{secrets.MEND_EMAIL}}
+          MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
+          MEND_URL: https://saas.mend.io
+        run: |
+          echo 'Downloading Mend CLI'
+          curl https://downloads.mend.io/cli/windows_amd64/mend.exe -o mend.exe
+          echo 'run Mend reachability scan'
+          .\mend.exe dep -r -u
+
+      - name: Mend CLI Scan (MacOS)
+        if: matrix.os == 'macos-latest'
+        env:
+          MEND_EMAIL: ${{secrets.MEND_EMAIL}}
+          MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
+          MEND_URL: https://saas.mend.io
+        run: |
+          echo 'Downloading Mend CLI'
+          curl https://downloads.mend.io/cli/darwin_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
+          echo 'run Mend reachability scan'
+          mend dep -r -u
