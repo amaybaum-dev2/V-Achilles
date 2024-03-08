@@ -32,14 +32,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --only=prod
         
-      - name: Mend CLI Scan
+      - name: Mend CLI Scan (ubuntu-latest)
+        if: runner.os == 'ubuntu-latest'
         env:
           MEND_EMAIL: ${{secrets.MEND_EMAIL}}
           MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
           MEND_URL: https://saas.mend.io
-        if: runner.os == 'ubuntu-latest'
         run: |
           echo Downloading Mend CLI
           curl https://downloads.mend.io/cli/linux_amd64/mend -o /usr/local/bin/mend && chmod +x /usr/local/bin/mend
           echo run Mend reachability scan
           mend dep -r -u
+          
+      - name: Mend CLI Scan (windows-latest)
+        if: runner.os == 'windows-latest'
+        env:
+          MEND_EMAIL: ${{secrets.MEND_EMAIL}}
+          MEND_USER_KEY: ${{secrets.MEND_USER_KEY}}
+          MEND_URL: https://saas.mend.io
+        run: |
+          echo 'Downloading Mend CLI'
+          curl https://downloads.mend.io/cli/windows_amd64/mend.exe -o mend.exe
+          echo 'run Mend reachability scan'
+          .\mend.exe dep -r -u
